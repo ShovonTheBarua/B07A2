@@ -21,6 +21,8 @@ const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const result = await userService.loginUserIntoDB(email, password);
+
+    
   } catch (error) {
     console.log(error);
   }

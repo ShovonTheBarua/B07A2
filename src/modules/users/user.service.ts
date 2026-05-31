@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../../db";
+import jwt from "jsonwebtoken";
+import config from "../../config";
 
 const createUserIntoDB = async (payload: any) => {
   const { name, email, password, role } = payload;
@@ -43,9 +45,15 @@ const loginUserIntoDB = async (email: string, password: string) => {
   console.log(matchedPassword);
 
   //! generate token
+  const payload = {
+    id: user.id,
+    name: user.name,
+    role: user.role,
+  };
 
-  
+  const accessToken = jwt.sign(payload, config.secret, { expiresIn: "1d" });
 
+  return accessToken;
 };
 
 export const userService = {
