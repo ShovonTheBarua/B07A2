@@ -4,7 +4,7 @@ import { pool } from "../../db";
 const createUserIntoDB = async (payload: any) => {
   const { name, email, password, role } = payload;
 
-  const hashPassword = await bcrypt.hash(password, 10 );
+  const hashPassword = await bcrypt.hash(password, 10);
 
   const result = await pool.query(
     `
@@ -19,15 +19,36 @@ const createUserIntoDB = async (payload: any) => {
   return result;
 };
 
-const loginUserIntoDB = async(email: string, password:string)=>{
-  const result = await pool.query(`
+const loginUserIntoDB = async (email: string, password: string) => {
+  //! checking if user exists
+  const userData = await pool.query(
+    `
     SELECT * FROM users WHERE email=$1
-    `,[email])
+    `,
+    [email],
+  );
 
-    console.log(result.rows[0]);
-}
+  // console.log(userData.rows[0]);
+  if (userData.rows.length === 0) {
+    throw new Error("Invalid Credentials");
+  }
+
+  //! compare the password
+  const user = userData.rows[0];
+  const matchedPassword = await bcrypt.compare(password, user.password);
+  if (!matchedPassword) {
+    throw new Error("Invalid Credentials");
+  }
+
+  console.log(matchedPassword);
+
+  //! generate token
+
+  
+
+};
 
 export const userService = {
   createUserIntoDB,
-  loginUserIntoDB
+  loginUserIntoDB,
 };
