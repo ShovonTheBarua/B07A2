@@ -2,8 +2,9 @@ import bcrypt from "bcryptjs";
 import { pool } from "../../db";
 import jwt from "jsonwebtoken";
 import config from "../../config";
+import type { IUser } from "./user.interface";
 
-const createUserIntoDB = async (payload: any) => {
+const createUserIntoDB = async (payload: IUser) => {
   const { name, email, password, role } = payload;
 
   const hashPassword = await bcrypt.hash(password, 10);
@@ -42,7 +43,7 @@ const loginUserIntoDB = async (email: string, password: string) => {
     throw new Error("Invalid Credentials");
   }
 
-  console.log(matchedPassword);
+  delete user.password
 
   //! generate token
   const payload = {
@@ -53,7 +54,7 @@ const loginUserIntoDB = async (email: string, password: string) => {
 
   const accessToken = jwt.sign(payload, config.secret, { expiresIn: "1d" });
 
-  return accessToken;
+  return {accessToken, user} ;
 };
 
 export const userService = {
