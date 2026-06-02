@@ -10,3 +10,9 @@ export interface IIssueQuery {
   status?: string;
   sort?: string;
 }
+
+export interface IReporter {
+  id: number,
+  name: string,
+  role: string
+}

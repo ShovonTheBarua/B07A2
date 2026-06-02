@@ -27,7 +27,9 @@ const createIssue = async (req: Request, res: Response) => {
 
 const getAllIssue = async (req: Request, res: Response) => {
   try {
-    const result = await issueService.getAllIssuesFromDB(req.query as IIssueQuery);
+    const result = await issueService.getAllIssuesFromDB(
+      req.query as IIssueQuery,
+    );
     sendResponse(res, {
       statusCode: 200,
       success: true,
@@ -44,7 +46,29 @@ const getAllIssue = async (req: Request, res: Response) => {
   }
 };
 
+const getSingleIssue = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    const result = await issueService.getSingleIssueFromDB(id);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Issue retrived successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      statusCode: 500,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
+
 export const issueController = {
   createIssue,
   getAllIssue,
+  getSingleIssue,
 };
