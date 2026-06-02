@@ -16,3 +16,12 @@ export interface IReporter {
   name: string,
   role: string
 }
+
+export interface IUpdateIssue{
+    userId: number,
+    issueId: number,
+    userRole: string,
+    title?: string,
+    description?: string,
+    type?: string,
+}

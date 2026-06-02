@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { issueService } from "./issues.service";
 import type { JwtPayload } from "jsonwebtoken";
 import sendResponse from "../../utility/sendResponse";
-import type { IIssueQuery } from "./issues.interface";
+import type { IIssueQuery, IUpdateIssue } from "./issues.interface";
 
 const createIssue = async (req: Request, res: Response) => {
   try {
@@ -67,8 +67,43 @@ const getSingleIssue = async (req: Request, res: Response) => {
   }
 };
 
+const updateSingleIssue = async (req: Request, res: Response) => {
+  try {
+    const issueId = Number(req.params.id);
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    // console.log(userId, userRole);
+
+    const payload = {
+      userId: userId,
+      issueId: issueId,
+      userRole: userRole,
+      title: req.body.title,
+      description: req.body.description,
+      type: req.body.type,
+    };
+
+    const result = await issueService.updateSingleIssueInDB(payload);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Issue updated successfully",
+      data: result?.rows[0],
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      statusCode: 500,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
+
 export const issueController = {
   createIssue,
   getAllIssue,
   getSingleIssue,
+  updateSingleIssue,
 };

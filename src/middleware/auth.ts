@@ -37,6 +37,7 @@ const auth = () => {
 
       //! set data inside request
       req.user = decoded;
+      console.log(decoded);
       next();
     } catch (error) {
       next(error);

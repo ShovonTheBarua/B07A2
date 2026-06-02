@@ -1,5 +1,10 @@
 import { pool } from "../../db";
-import type { IIssue, IIssueQuery, IReporter } from "./issues.interface";
+import type {
+  IIssue,
+  IIssueQuery,
+  IReporter,
+  IUpdateIssue,
+} from "./issues.interface";
 
 const createIssueIntoDB = async (payload: IIssue, userId: number) => {
   const { title, description, type, status } = payload;
@@ -123,8 +128,47 @@ const getSingleIssueFromDB = async (id: number) => {
   return formattedResult;
 };
 
+const updateSingleIssueInDB = async (payload: IUpdateIssue) => {
+  const { userId, issueId, userRole, title, description, type } = payload;
+
+  const issueData = await pool.query(
+    `
+    SELECT * FROM issues WHERE id=$1
+    `,
+    [issueId],
+  );
+  const issue = issueData.rows[0];
+
+  if (issueData.rows.length === 0) {
+    throw new Error("issue not found");
+  }
+
+  const update = await pool.query(
+    `
+    UPDATE issues 
+    SET 
+    title=COALESCE($1, title), 
+    description=COALESCE($2, description), 
+    type=COALESCE($3, type)
+    WHERE id=$4
+    RETURNING *
+    `,
+    [title, description, type, issueId],
+  );
+
+  if (userRole === "maintainer") {
+    return update;
+  } else if (issue.reporter_id === userId && issue.status === "open") {
+    return update;
+  } else {
+    throw new Error("unauthorized access");
+  }
+
+};
+
 export const issueService = {
   createIssueIntoDB,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
+  updateSingleIssueInDB,
 };
