@@ -149,7 +149,8 @@ const updateSingleIssueInDB = async (payload: IUpdateIssue) => {
     SET 
     title=COALESCE($1, title), 
     description=COALESCE($2, description), 
-    type=COALESCE($3, type)
+    type=COALESCE($3, type),
+    updated_at= NOW()
     WHERE id=$4
     RETURNING *
     `,
@@ -163,6 +164,32 @@ const updateSingleIssueInDB = async (payload: IUpdateIssue) => {
   } else {
     throw new Error("unauthorized access");
   }
+};
+
+const deleteSingleIssueInDB = async (issueId: number, userRole: string) => {
+  const issue = await pool.query(
+    `
+    SELECT * FROM issues WHERE id=$1
+    `,
+    [issueId],
+  );
+
+  if (issue.rows.length === 0) {
+    throw new Error("issues does not exist");
+  }
+
+  if (userRole === "maintainer") {
+    const result = await pool.query(
+      `
+      DELETE FROM issues
+      WHERE id= $1
+    `,
+      [issueId],
+    );
+    return result;
+  }else{
+    throw new Error("unauthorized access")
+  }
 
 };
 
@@ -171,4 +198,5 @@ export const issueService = {
   getAllIssuesFromDB,
   getSingleIssueFromDB,
   updateSingleIssueInDB,
+  deleteSingleIssueInDB,
 };

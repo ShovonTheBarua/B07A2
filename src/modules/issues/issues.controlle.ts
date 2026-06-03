@@ -101,9 +101,31 @@ const updateSingleIssue = async (req: Request, res: Response) => {
   }
 };
 
+const deleteSingleIssue = async (req: Request, res: Response) => {
+  try {
+    const issueId = Number(req.params.id);
+    const userRole = req.user?.role;
+
+    const result = await issueService.deleteSingleIssueInDB(issueId, userRole);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "issue deleted successfully",
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      statusCode: 500,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
 export const issueController = {
   createIssue,
   getAllIssue,
   getSingleIssue,
   updateSingleIssue,
+  deleteSingleIssue,
 };
