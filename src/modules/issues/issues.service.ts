@@ -96,6 +96,10 @@ const getSingleIssueFromDB = async (id: number) => {
       `,
     [id],
   );
+  if (result.rows.length === 0) {
+    throw new Error("issue does not exists");
+  }
+
   console.log(result.rows);
   const issue = result.rows[0];
   const reporter_id = issue.reporter_id;
@@ -187,10 +191,9 @@ const deleteSingleIssueInDB = async (issueId: number, userRole: string) => {
       [issueId],
     );
     return result;
-  }else{
-    throw new Error("unauthorized access")
+  } else {
+    throw new Error("unauthorized access");
   }
-
 };
 
 export const issueService = {
